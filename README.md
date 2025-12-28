@@ -57,9 +57,7 @@ A sophisticated, production-ready Django web application that leverages machine 
 - **Redis**: Caching layer
 
 ### Deployment
-- **Railway**: Recommended platform
-- **Heroku**: Alternative deployment
-- **PythonAnywhere**: Budget-friendly option
+-
 - **Render**: Modern deployment platform
 
 ## 📁 Project Structure
@@ -172,7 +170,7 @@ The system uses OpenWeatherMap API for real-time weather data:
 
 ```python
 # Example API call
-api_key = "API_KEY_HERE"
+api_key = "YOUR_API_KEY"
 city = "London"
 url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 ```
@@ -196,7 +194,7 @@ Create a `.env` file for local development:
 ```env
 SECRET_KEY=your-secret-key-here
 DEBUG=True
-WEATHER_API_KEY = API_KEY_HERE
+WEATHER_API_KEY = YOUR_API_KEY
 DATABASE_URL=sqlite:///db.sqlite3
 ```
 
@@ -213,7 +211,7 @@ SECURE_SSL_REDIRECT = True
 
 ## 🚀 Deployment
 
-### Railway (Recommended)
+### Rendor 
 
 1. **Connect Repository**
    - Link your GitHub repository to Railway
@@ -222,21 +220,20 @@ SECURE_SSL_REDIRECT = True
 2. **Set Environment Variables**
    ```
    SECRET_KEY=your-secret-key
-   WEATHER_API_KEY=ff8c21d34e1be467ed610359b93f7bca
+   WEATHER_API_KEY=your_api_key
    DJANGO_SETTINGS_MODULE=weather_prediction.settings_production
    ```
 
 3. **Deploy**
-   - Railway automatically builds and deploys
+   - Render automatically builds and deploys
    - Your app will be live at `yourapp.railway.app`
 
 ### Other Platforms
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed guides on:
-- Heroku
+
 - Render
-- PythonAnywhere
-- Custom VPS
+
 
 ## 🧪 Testing
 
@@ -355,9 +352,6 @@ We welcome contributions! Please follow these steps:
    python manage.py migrate --run-syncdb
    ```
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -367,12 +361,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Bootstrap** for responsive design components
 - **Font Awesome** for beautiful icons
 
-## 📞 Support
 
-- **Documentation**: Check this README and DEPLOYMENT.md
-- **Issues**: Open a GitHub issue
-- **Email**: contact@yourproject.com
-- **Discord**: Join our community server
 
 ## 🔮 Future Enhancements
 
@@ -387,7 +376,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by [Your Name]**
+
 
 
 *Making weather prediction accessible to everyone through the power of AI and modern web technologies.*
+
