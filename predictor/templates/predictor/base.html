@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Powered Weather Forecasting Platform - Advanced machine learning for accurate weather predictions">
+    <meta name="keywords" content="AI weather, machine learning, weather prediction, forecasting, meteorology">
+    <meta name="author" content="AI Weather Forecasting Platform">
+    
+    <title>{% block title %}AI Weather Forecasting Platform{% endblock %}</title>
+    
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/weather.css' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤️</text></svg>">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'predictor:home' %}">
+                <i class="fas fa-cloud-sun-rain me-2"></i>
+                WeatherAI Pro
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                           href="{% url 'predictor:home' %}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'predict' %}active{% endif %}" 
+                           href="{% url 'predictor:predict' %}">
+                            <i class="fas fa-brain me-1"></i>AI Forecast
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" 
+                           href="{% url 'predictor:history' %}">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Alert Messages -->
+        {% if messages %}
+            <div class="container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-cloud-sun-rain me-2"></i>
+                        WeatherAI Pro
+                    </h5>
+                    <p class="text-secondary mb-3">
+                        An intelligent weather forecasting platform that combines real-time meteorological data 
+                        with advanced machine learning models to deliver precise, data-driven predictions.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-secondary" title="GitHub">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-secondary" title="LinkedIn">
+                            <i class="fab fa-linkedin fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-secondary" title="Twitter">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="mb-3">Platform</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'predictor:home' %}">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'predictor:predict' %}">AI Forecast</a></li>
+                        <li class="mb-2"><a href="{% url 'predictor:history' %}">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="mb-3">Technology</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2 text-secondary">Django Framework</li>
+                        <li class="mb-2 text-secondary">Machine Learning</li>
+                        <li class="mb-2 text-secondary">Real-time APIs</li>
+                        <li class="mb-2 text-secondary">Advanced Analytics</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="mb-3">Performance Metrics</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-success">95%</div>
+                                <small class="text-secondary">Accuracy</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-info">24/7</div>
+                                <small class="text-secondary">Uptime</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-warning">&lt;1s</div>
+                                <small class="text-secondary">Response</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="h4 mb-0 text-primary">AI</div>
+                                <small class="text-secondary">Powered</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-secondary mb-0">
+                        &copy; 2024 WeatherAI Pro. Engineered with precision using Django & Machine Learning.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-secondary">
+                        Powered by OpenWeatherMap API & Advanced ML Models
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/weather.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

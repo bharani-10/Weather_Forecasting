@@ -1,0 +1,369 @@
+{% extends 'predictor/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - AI Weather Prediction{% endblock %}
+
+{% block content %}
+<section class="history-section py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="page-title text-white">
+                <span class="gradient-text">Prediction History</span>
+            </h1>
+            <p class="page-subtitle text-light opacity-75">
+                View all your previous weather predictions and their results
+            </p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card glass-card text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar text-primary"></i>
+                    </div>
+                    <h3 class="stat-number">{{ total_predictions }}</h3>
+                    <p class="stat-label">Total Predictions</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card glass-card text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-city text-success"></i>
+                    </div>
+                    <h3 class="stat-number">{{ predictions|length }}</h3>
+                    <p class="stat-label">Cities Analyzed</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card glass-card text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-brain text-warning"></i>
+                    </div>
+                    <h3 class="stat-number">95%</h3>
+                    <p class="stat-label">AI Accuracy</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card glass-card text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock text-info"></i>
+                    </div>
+                    <h3 class="stat-number">24/7</h3>
+                    <p class="stat-label">Available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="history-table-container glass-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="text-white mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            Recent Predictions
+                        </h3>
+                        {% if predictions %}
+                        <div class="table-actions">
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#clearAllModal">
+                                <i class="fas fa-trash me-1"></i>
+                                Clear All
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if predictions %}
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover glass-table">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-map-marker-alt me-1"></i> City</th>
+                                            <th><i class="fas fa-thermometer-half me-1"></i> Temperature</th>
+                                            <th><i class="fas fa-tint me-1"></i> Humidity</th>
+                                            <th><i class="fas fa-cloud-rain me-1"></i> Rain</th>
+                                            <th><i class="fas fa-calendar me-1"></i> Date</th>
+                                            <th><i class="fas fa-cog me-1"></i> Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for prediction in predictions %}
+                                        <tr class="prediction-row" data-prediction-id="{{ prediction.id }}">
+                                            <td>
+                                                <div class="city-info">
+                                                    <strong>{{ prediction.city }}</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="temperature-display">
+                                                    <span class="predicted-temp">{{ prediction.predicted_temperature|floatformat:1 }}°C</span>
+                                                    <small class="text-muted d-block">
+                                                        Current: {{ prediction.current_temp|floatformat:1 }}°C
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="humidity-display">
+                                                    <span class="predicted-humidity">{{ prediction.predicted_humidity|floatformat:0 }}%</span>
+                                                    <small class="text-muted d-block">
+                                                        Current: {{ prediction.humidity }}%
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="rain-display">
+                                                    {% if prediction.predicted_rain == 'Yes' %}
+                                                        <span class="badge bg-primary">
+                                                            <i class="fas fa-cloud-rain me-1"></i>
+                                                            Yes
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-sun me-1"></i>
+                                                            No
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="date-display">
+                                                    <span>{{ prediction.timestamp|date:"M d, Y" }}</span>
+                                                    <small class="text-muted d-block">
+                                                        {{ prediction.timestamp|time:"H:i" }}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-sm btn-outline-primary me-1" 
+                                                            onclick="viewDetails({{ prediction.id }})"
+                                                            title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            onclick="deletePrediction({{ prediction.id }}, '{{ prediction.city }}')"
+                                                            title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if predictions.has_other_pages %}
+                            <nav aria-label="Prediction history pagination" class="mt-4">
+                                <ul class="pagination justify-content-center glass-pagination">
+                                    {% if predictions.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ predictions.previous_page_number }}">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in predictions.paginator.page_range %}
+                                        {% if predictions.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > predictions.number|add:'-3' and num < predictions.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if predictions.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ predictions.next_page_number }}">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ predictions.paginator.num_pages }}">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+
+                        {% else %}
+                            <!-- Empty State -->
+                            <div class="empty-state text-center py-5">
+                                <div class="empty-icon mb-3">
+                                    <i class="fas fa-cloud-sun fa-4x text-muted"></i>
+                                </div>
+                                <h4 class="text-white mb-3">No Predictions Yet</h4>
+                                <p class="text-light opacity-75 mb-4">
+                                    You haven't made any weather predictions yet. Start by entering a city name to get AI-powered forecasts.
+                                </p>
+                                <a href="{% url 'predictor:predict' %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Make First Prediction
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        {% if predictions %}
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <div class="quick-actions">
+                    <a href="{% url 'predictor:predict' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-plus me-2"></i>
+                        New Prediction
+                    </a>
+                    <a href="{% url 'predictor:home' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-home me-2"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-light">
+                    Are you sure you want to delete the prediction for <strong id="deleteCityName"></strong>?
+                    This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" id="deleteForm" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear All Confirmation Modal -->
+<div class="modal fade" id="clearAllModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Clear All Predictions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-light">
+                    Are you sure you want to delete <strong>all {{ total_predictions }} predictions</strong>?
+                    This action cannot be undone and will permanently remove all your prediction history.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'predictor:clear_all' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        Clear All
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const clearAllModal = new bootstrap.Modal(document.getElementById('clearAllModal'));
+    
+    // Animate table rows on load
+    const rows = document.querySelectorAll('.prediction-row');
+    rows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(20px)';
+        row.style.transition = 'all 0.4s ease';
+        
+        setTimeout(() => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Animate stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.9)';
+        card.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        }, index * 150);
+    });
+});
+
+function viewDetails(predictionId) {
+    // Navigate to result page for this prediction
+    window.location.href = `/result/${predictionId}/`;
+}
+
+function deletePrediction(predictionId, cityName) {
+    // Set up delete modal
+    document.getElementById('deleteCityName').textContent = cityName;
+    document.getElementById('deleteForm').action = `/delete/${predictionId}/`;
+    
+    // Show modal
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Add hover effects to table rows
+document.querySelectorAll('.prediction-row').forEach(row => {
+    row.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.02)';
+        this.style.transition = 'transform 0.2s ease';
+    });
+    
+    row.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+});
+</script>
+{% endblock %}

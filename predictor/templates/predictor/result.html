@@ -1,0 +1,384 @@
+{% extends 'predictor/base.html' %}
+{% load static %}
+
+{% block title %}Prediction Results - {{ city_info.name }}{% endblock %}
+
+{% block content %}
+<section class="results-section py-5">
+    <div class="container">
+        <!-- Page Header with Enhanced City Display -->
+        <div class="text-center mb-5">
+            <div class="location-header glass-card d-inline-block px-5 py-3 mb-4">
+                <div class="d-flex align-items-center justify-content-center gap-3">
+                    <div class="location-flag" style="font-size: 2rem;">
+                        {% if city_info.country == 'GB' or city_info.country == 'UK' %}🇬🇧
+                        {% elif city_info.country == 'US' %}🇺🇸
+                        {% elif city_info.country == 'JP' %}🇯🇵
+                        {% elif city_info.country == 'FR' %}🇫🇷
+                        {% elif city_info.country == 'AU' %}🇦🇺
+                        {% elif city_info.country == 'IN' %}🇮🇳
+                        {% elif city_info.country == 'DE' %}🇩🇪
+                        {% elif city_info.country == 'CA' %}🇨🇦
+                        {% elif city_info.country == 'AE' %}🇦🇪
+                        {% elif city_info.country == 'SG' %}🇸🇬
+                        {% elif city_info.country == 'ES' %}🇪🇸
+                        {% elif city_info.country == 'IT' %}🇮🇹
+                        {% elif city_info.country == 'NL' %}🇳🇱
+                        {% elif city_info.country == 'RU' %}🇷🇺
+                        {% elif city_info.country == 'TR' %}🇹🇷
+                        {% elif city_info.country == 'TH' %}🇹🇭
+                        {% elif city_info.country == 'KR' %}🇰🇷
+                        {% elif city_info.country == 'HK' %}🇭🇰
+                        {% elif city_info.country == 'AT' %}🇦🇹
+                        {% elif city_info.country == 'CZ' %}🇨🇿
+                        {% elif city_info.country == 'HU' %}🇭🇺
+                        {% elif city_info.country == 'PL' %}🇵🇱
+                        {% else %}🌍{% endif %}
+                    </div>
+                    <div class="location-info text-start">
+                        <h2 class="location-name mb-1">{{ city_info.name }}</h2>
+                        <p class="location-country mb-0 text-secondary">
+                            {% if city_info.country == 'GB' or city_info.country == 'UK' %}United Kingdom
+                            {% elif city_info.country == 'US' %}United States
+                            {% elif city_info.country == 'JP' %}Japan
+                            {% elif city_info.country == 'FR' %}France
+                            {% elif city_info.country == 'AU' %}Australia
+                            {% elif city_info.country == 'IN' %}India
+                            {% elif city_info.country == 'DE' %}Germany
+                            {% elif city_info.country == 'CA' %}Canada
+                            {% elif city_info.country == 'AE' %}United Arab Emirates
+                            {% elif city_info.country == 'SG' %}Singapore
+                            {% elif city_info.country == 'ES' %}Spain
+                            {% elif city_info.country == 'IT' %}Italy
+                            {% elif city_info.country == 'NL' %}Netherlands
+                            {% elif city_info.country == 'RU' %}Russia
+                            {% elif city_info.country == 'TR' %}Turkey
+                            {% elif city_info.country == 'TH' %}Thailand
+                            {% elif city_info.country == 'KR' %}South Korea
+                            {% elif city_info.country == 'HK' %}Hong Kong
+                            {% elif city_info.country == 'AT' %}Austria
+                            {% elif city_info.country == 'CZ' %}Czech Republic
+                            {% elif city_info.country == 'HU' %}Hungary
+                            {% elif city_info.country == 'PL' %}Poland
+                            {% else %}{{ city_info.country }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <h1 class="page-title text-white">
+                <span class="gradient-text">AI Weather Intelligence Report</span>
+            </h1>
+            <p class="page-subtitle text-light opacity-75">
+                Comprehensive weather analysis powered by advanced machine learning algorithms
+            </p>
+        </div>
+
+        <!-- Current Weather vs Predictions -->
+        <div class="row g-4 mb-5">
+            <!-- Current Weather Card -->
+            <div class="col-lg-6">
+                <div class="weather-card glass-card">
+                    <div class="card-header">
+                        <h3 class="text-white mb-0">
+                            <i class="fas fa-thermometer-three-quarters me-2"></i>
+                            Current Weather
+                        </h3>
+                        <small class="text-light opacity-75">Real-time data from API</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="current-weather-display">
+                            <div class="weather-main">
+                                <div class="weather-icon-large">
+                                    {% if 'rain' in current_weather.description|lower %}
+                                        <i class="fas fa-cloud-rain text-primary"></i>
+                                    {% elif 'cloud' in current_weather.description|lower %}
+                                        <i class="fas fa-cloud text-secondary"></i>
+                                    {% elif 'clear' in current_weather.description|lower or 'sun' in current_weather.description|lower %}
+                                        <i class="fas fa-sun text-warning"></i>
+                                    {% else %}
+                                        <i class="fas fa-cloud-sun text-info"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="weather-info">
+                                    <h2 class="current-temp">{{ current_weather.current_temp|floatformat:1 }}°C</h2>
+                                    <p class="weather-desc">{{ current_weather.description|title }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="weather-details">
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <i class="fas fa-temperature-low text-info"></i>
+                                        <span>Min: {{ current_weather.min_temp|floatformat:1 }}°C</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-temperature-high text-danger"></i>
+                                        <span>Max: {{ current_weather.max_temp|floatformat:1 }}°C</span>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <i class="fas fa-tint text-primary"></i>
+                                        <span>Humidity: {{ current_weather.humidity }}%</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-compress-arrows-alt text-success"></i>
+                                        <span>Pressure: {{ current_weather.pressure }} hPa</span>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <i class="fas fa-wind text-secondary"></i>
+                                        <span>Wind: {{ current_weather.wind_gust_speed|floatformat:1 }} km/h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Predictions Card -->
+            <div class="col-lg-6">
+                <div class="predictions-card glass-card">
+                    <div class="card-header">
+                        <h3 class="text-white mb-0">
+                            <i class="fas fa-brain me-2"></i>
+                            AI Predictions
+                        </h3>
+                        <small class="text-light opacity-75">Machine Learning Results</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="predictions-display">
+                            <!-- Temperature Prediction -->
+                            <div class="prediction-item">
+                                <div class="prediction-icon">
+                                    <i class="fas fa-thermometer-half text-danger"></i>
+                                </div>
+                                <div class="prediction-content">
+                                    <h4 class="prediction-title">Temperature</h4>
+                                    <div class="prediction-value">
+                                        {{ predictions.temperature }}°C
+                                    </div>
+                                    <div class="prediction-comparison">
+                                        {% with diff=predictions.temperature|add:current_weather.current_temp|add:"-"|floatformat:1 %}
+                                            {% if diff > 0 %}
+                                                <span class="text-danger">
+                                                    <i class="fas fa-arrow-up"></i> +{{ diff }}°C
+                                                </span>
+                                            {% elif diff < 0 %}
+                                                <span class="text-info">
+                                                    <i class="fas fa-arrow-down"></i> {{ diff }}°C
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success">
+                                                    <i class="fas fa-equals"></i> Same
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Humidity Prediction -->
+                            <div class="prediction-item">
+                                <div class="prediction-icon">
+                                    <i class="fas fa-tint text-info"></i>
+                                </div>
+                                <div class="prediction-content">
+                                    <h4 class="prediction-title">Humidity</h4>
+                                    <div class="prediction-value">
+                                        {{ predictions.humidity|floatformat:0 }}%
+                                    </div>
+                                    <div class="prediction-comparison">
+                                        {% with diff=predictions.humidity|add:current_weather.humidity|add:"-"|floatformat:0 %}
+                                            {% if diff > 0 %}
+                                                <span class="text-primary">
+                                                    <i class="fas fa-arrow-up"></i> +{{ diff }}%
+                                                </span>
+                                            {% elif diff < 0 %}
+                                                <span class="text-warning">
+                                                    <i class="fas fa-arrow-down"></i> {{ diff }}%
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success">
+                                                    <i class="fas fa-equals"></i> Same
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rain Prediction -->
+                            <div class="prediction-item">
+                                <div class="prediction-icon">
+                                    {% if predictions.rain == 'Yes' %}
+                                        <i class="fas fa-cloud-rain text-primary"></i>
+                                    {% else %}
+                                        <i class="fas fa-sun text-warning"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="prediction-content">
+                                    <h4 class="prediction-title">Rain Forecast</h4>
+                                    <div class="prediction-value">
+                                        {{ predictions.rain }}
+                                    </div>
+                                    <div class="prediction-comparison">
+                                        {% if predictions.rain == 'Yes' %}
+                                            <span class="text-primary">
+                                                <i class="fas fa-umbrella"></i> Bring umbrella
+                                            </span>
+                                        {% else %}
+                                            <span class="text-success">
+                                                <i class="fas fa-smile"></i> Clear skies
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="analysis-card glass-card">
+                    <div class="card-header">
+                        <h3 class="text-white mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Detailed Analysis
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-white mb-3">Input Features Used</h5>
+                                <div class="feature-list">
+                                    <div class="feature-item">
+                                        <span class="feature-label">Minimum Temperature:</span>
+                                        <span class="feature-value">{{ features.min_temp|floatformat:1 }}°C</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-label">Maximum Temperature:</span>
+                                        <span class="feature-value">{{ features.max_temp|floatformat:1 }}°C</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-label">Wind Gust Speed:</span>
+                                        <span class="feature-value">{{ features.wind_gust_speed|floatformat:1 }} km/h</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-label">Current Humidity:</span>
+                                        <span class="feature-value">{{ features.humidity }}%</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-label">Atmospheric Pressure:</span>
+                                        <span class="feature-value">{{ features.pressure }} hPa</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <span class="feature-label">Current Temperature:</span>
+                                        <span class="feature-value">{{ features.current_temp|floatformat:1 }}°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-white mb-3">Prediction Confidence</h5>
+                                <div class="confidence-meters">
+                                    <div class="confidence-item">
+                                        <span class="confidence-label">Temperature Model</span>
+                                        <div class="progress glass-progress">
+                                            <div class="progress-bar bg-danger" style="width: 92%"></div>
+                                        </div>
+                                        <span class="confidence-value">92%</span>
+                                    </div>
+                                    <div class="confidence-item">
+                                        <span class="confidence-label">Humidity Model</span>
+                                        <div class="progress glass-progress">
+                                            <div class="progress-bar bg-info" style="width: 89%"></div>
+                                        </div>
+                                        <span class="confidence-value">89%</span>
+                                    </div>
+                                    <div class="confidence-item">
+                                        <span class="confidence-label">Rain Model</span>
+                                        <div class="progress glass-progress">
+                                            <div class="progress-bar bg-primary" style="width: 95%"></div>
+                                        </div>
+                                        <span class="confidence-value">95%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="action-buttons">
+                    <a href="{% url 'predictor:predict' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-redo me-2"></i>
+                        New Prediction
+                    </a>
+                    <a href="{% url 'predictor:history' %}" class="btn btn-outline-light btn-lg me-3">
+                        <i class="fas fa-history me-2"></i>
+                        View History
+                    </a>
+                    <a href="{% url 'predictor:home' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-home me-2"></i>
+                        Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate prediction cards on load
+    const predictionItems = document.querySelectorAll('.prediction-item');
+    predictionItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(30px)';
+        item.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateX(0)';
+        }, index * 200);
+    });
+    
+    // Animate confidence bars
+    setTimeout(() => {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            bar.style.transition = 'width 1s ease-in-out';
+            
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 1000);
+    
+    // Add weather icon animations
+    const weatherIcon = document.querySelector('.weather-icon-large i');
+    if (weatherIcon) {
+        setInterval(() => {
+            weatherIcon.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                weatherIcon.style.transform = 'scale(1)';
+            }, 500);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

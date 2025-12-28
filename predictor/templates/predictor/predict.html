@@ -1,0 +1,353 @@
+{% extends 'predictor/base.html' %}
+{% load static %}
+
+{% block title %}AI Weather Forecasting - Advanced Prediction Engine{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Page Header -->
+                <div class="text-center mb-5">
+                    <h1 class="section-title">
+                        Advanced Weather Intelligence
+                    </h1>
+                    <p class="subtitle">
+                        Enter any global location to receive comprehensive weather analysis powered by 
+                        state-of-the-art machine learning algorithms and real-time meteorological data.
+                    </p>
+                </div>
+
+                <!-- Prediction Form -->
+                <div class="row justify-content-center mb-5">
+                    <div class="col-lg-10">
+                        <div class="glass-card p-5">
+                            <div class="text-center mb-4">
+                                <h3 class="mb-2">
+                                    <i class="fas fa-map-marker-alt me-2 text-info"></i>
+                                    Location Intelligence Engine
+                                </h3>
+                                <p class="text-secondary">
+                                    Powered by advanced AI models trained on global weather patterns
+                                </p>
+                            </div>
+                            
+                            <form method="post" id="predictionForm" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                <div class="form-floating mb-4">
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        id="city" 
+                                        name="city" 
+                                        placeholder="Enter city name"
+                                        required
+                                        autocomplete="off"
+                                    >
+                                    <label for="city">
+                                        <i class="fas fa-globe-americas me-2"></i>
+                                        City or Location
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Please enter a valid city name (minimum 2 characters, letters only).
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-accent btn-lg" id="predictBtn">
+                                        <span class="btn-text">
+                                            <i class="fas fa-brain me-2"></i>
+                                            Generate AI Forecast
+                                        </span>
+                                        <span class="btn-loading d-none">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>
+                                            Processing Intelligence...
+                                        </span>
+                                    </button>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <small class="text-secondary">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Secure • Real-time • Accurate
+                                    </small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Highlights -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="glass-card text-center p-4 h-100">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-thermometer-half text-danger"></i>
+                            </div>
+                            <h5 class="mb-3">Temperature Analytics</h5>
+                            <p class="text-secondary mb-0">
+                                Advanced regression models deliver precise temperature forecasts 
+                                with confidence intervals and trend analysis.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="glass-card text-center p-4 h-100">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-tint text-info"></i>
+                            </div>
+                            <h5 class="mb-3">Humidity Intelligence</h5>
+                            <p class="text-secondary mb-0">
+                                Sophisticated atmospheric moisture analysis using ensemble 
+                                learning for agricultural and industrial applications.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="glass-card text-center p-4 h-100">
+                            <div class="feature-icon mb-3">
+                                <i class="fas fa-cloud-rain text-primary"></i>
+                            </div>
+                            <h5 class="mb-3">Precipitation Modeling</h5>
+                            <p class="text-secondary mb-0">
+                                Binary classification algorithms predict rainfall probability 
+                                with exceptional accuracy for planning and logistics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access Panel -->
+                <div class="glass-card p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">
+                                <i class="fas fa-rocket me-2 text-warning"></i>
+                                Professional Weather Intelligence
+                            </h5>
+                            <p class="text-secondary mb-0">
+                                Access comprehensive weather analytics, historical data trends, 
+                                and advanced forecasting capabilities designed for professionals.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{% url 'predictor:history' %}" class="btn btn-primary me-2">
+                                <i class="fas fa-chart-line me-1"></i>
+                                View History
+                            </a>
+                            <a href="{% url 'predictor:home' %}" class="btn btn-outline-light">
+                                <i class="fas fa-home me-1"></i>
+                                Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0">
+            <div class="modal-body text-center p-5">
+                <div class="loading-spinner mb-4"></div>
+                <h5 class="mb-3">Processing Weather Intelligence</h5>
+                <p class="text-secondary mb-0">
+                    Analyzing atmospheric data and generating AI-powered predictions...
+                </p>
+                <div class="mt-4">
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 0%" id="loadingProgress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('predictionForm');
+    const cityInput = document.getElementById('city');
+    const predictBtn = document.getElementById('predictBtn');
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    
+    // Popular cities for suggestions with country info
+    const popularCities = [
+        { name: 'London', country: 'United Kingdom', flag: '🇬🇧' },
+        { name: 'New York', country: 'United States', flag: '🇺🇸' },
+        { name: 'Tokyo', country: 'Japan', flag: '🇯🇵' },
+        { name: 'Paris', country: 'France', flag: '🇫🇷' },
+        { name: 'Sydney', country: 'Australia', flag: '🇦🇺' },
+        { name: 'Mumbai', country: 'India', flag: '🇮🇳' },
+        { name: 'Berlin', country: 'Germany', flag: '🇩🇪' },
+        { name: 'Toronto', country: 'Canada', flag: '🇨🇦' },
+        { name: 'Dubai', country: 'UAE', flag: '🇦🇪' },
+        { name: 'Singapore', country: 'Singapore', flag: '🇸🇬' }
+    ];
+    
+    // Form validation and submission
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (form.checkValidity()) {
+            submitPrediction();
+        }
+        
+        form.classList.add('was-validated');
+    });
+    
+    // Enhanced city input validation
+    cityInput.addEventListener('input', function() {
+        const value = this.value.trim();
+        const isValid = value.length >= 2 && /^[a-zA-ZÀ-ÿ\s\-']+$/.test(value);
+        
+        if (isValid) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else if (value.length > 0) {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-valid', 'is-invalid');
+        }
+        
+        // Show suggestions
+        if (value.length >= 2) {
+            showSuggestions(value);
+        } else {
+            hideSuggestions();
+        }
+    });
+    
+    // Submit prediction with enhanced UX
+    function submitPrediction() {
+        const city = cityInput.value.trim();
+        
+        // Show loading state
+        predictBtn.disabled = true;
+        predictBtn.querySelector('.btn-text').classList.add('d-none');
+        predictBtn.querySelector('.btn-loading').classList.remove('d-none');
+        
+        // Show loading modal with progress
+        loadingModal.show();
+        animateProgress();
+        
+        // Submit form after progress animation
+        setTimeout(() => {
+            form.submit();
+        }, 2000);
+    }
+    
+    // Animate loading progress
+    function animateProgress() {
+        const progressBar = document.getElementById('loadingProgress');
+        let width = 0;
+        const interval = setInterval(() => {
+            width += Math.random() * 15;
+            if (width >= 90) {
+                width = 90;
+                clearInterval(interval);
+            }
+            progressBar.style.width = width + '%';
+        }, 100);
+    }
+    
+    // City suggestions system with enhanced display
+    function showSuggestions(input) {
+        const suggestions = popularCities.filter(city => 
+            city.name.toLowerCase().includes(input.toLowerCase())
+        ).slice(0, 5);
+        
+        // Remove existing suggestions
+        hideSuggestions();
+        
+        if (suggestions.length > 0) {
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'suggestions-dropdown glass-card position-absolute w-100 mt-1';
+            suggestionsContainer.style.zIndex = '1000';
+            
+            suggestions.forEach(city => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item p-3 border-bottom border-secondary';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="me-2" style="font-size: 1.2rem;">${city.flag}</span>
+                        <div>
+                            <div class="fw-bold text-white">${city.name}</div>
+                            <small class="text-secondary">${city.country}</small>
+                        </div>
+                    </div>
+                `;
+                
+                item.addEventListener('click', function() {
+                    cityInput.value = city.name;
+                    cityInput.classList.add('is-valid');
+                    hideSuggestions();
+                });
+                
+                item.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(255, 255, 255, 0.1)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.background = 'transparent';
+                });
+                
+                suggestionsContainer.appendChild(item);
+            });
+            
+            cityInput.parentNode.style.position = 'relative';
+            cityInput.parentNode.appendChild(suggestionsContainer);
+        }
+    }
+    
+    function hideSuggestions() {
+        const existing = document.querySelector('.suggestions-dropdown');
+        if (existing) {
+            existing.remove();
+        }
+    }
+    
+    // Auto-focus and enter key support
+    cityInput.focus();
+    
+    cityInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            form.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!cityInput.contains(event.target)) {
+            hideSuggestions();
+        }
+    });
+    
+    // Feature cards animation
+    const featureCards = document.querySelectorAll('.glass-card');
+    featureCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+});
+</script>
+{% endblock %}

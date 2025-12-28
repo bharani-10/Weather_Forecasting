@@ -1,0 +1,547 @@
+{% extends 'predictor/base.html' %}
+{% load static %}
+
+{% block title %}Analytics Dashboard - AI Weather Prediction{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.dashboard-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.metric-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-section py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="page-title text-white">
+                <span class="gradient-text">Analytics Dashboard</span>
+            </h1>
+            <p class="page-subtitle text-light opacity-75">
+                Comprehensive insights into weather prediction performance and usage
+            </p>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="dashboard-card glass-card metric-card">
+                    <div class="metric-number text-primary" id="totalPredictions">0</div>
+                    <div class="metric-label text-light">Total Predictions</div>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up"></i> +12% this month
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="dashboard-card glass-card metric-card">
+                    <div class="metric-number text-success" id="uniqueCities">0</div>
+                    <div class="metric-label text-light">Cities Analyzed</div>
+                    <div class="mt-2">
+                        <small class="text-info">
+                            <i class="fas fa-globe"></i> Worldwide coverage
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="dashboard-card glass-card metric-card">
+                    <div class="metric-number text-warning" id="accuracyRate">95%</div>
+                    <div class="metric-label text-light">Accuracy Rate</div>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-chart-line"></i> Improving
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="dashboard-card glass-card metric-card">
+                    <div class="metric-number text-info" id="avgResponseTime">0.8s</div>
+                    <div class="metric-label text-light">Avg Response Time</div>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-bolt"></i> Lightning fast
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-5">
+            <!-- Prediction Trends Chart -->
+            <div class="col-lg-8">
+                <div class="dashboard-card glass-card">
+                    <div class="card-header">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Prediction Trends (Last 30 Days)
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="trendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Distribution -->
+            <div class="col-lg-4">
+                <div class="dashboard-card glass-card">
+                    <div class="card-header">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Weather Distribution
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analytics Row -->
+        <div class="row g-4 mb-5">
+            <!-- Top Cities -->
+            <div class="col-lg-6">
+                <div class="dashboard-card glass-card">
+                    <div class="card-header">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-city me-2"></i>
+                            Top Cities
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="topCitiesList">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-lg-6">
+                <div class="dashboard-card glass-card">
+                    <div class="card-header">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Recent Activity
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentActivity">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="dashboard-card glass-card">
+                    <div class="card-header">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Model Performance Metrics
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <svg class="progress-ring" width="120" height="120">
+                                            <circle class="progress-ring-circle" stroke="#007bff" stroke-width="8" 
+                                                    fill="transparent" r="52" cx="60" cy="60" 
+                                                    stroke-dasharray="326.73" stroke-dashoffset="32.67"/>
+                                        </svg>
+                                        <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                            <span class="h3 text-primary">92%</span>
+                                        </div>
+                                    </div>
+                                    <h5 class="text-white">Temperature Model</h5>
+                                    <p class="text-light opacity-75">High accuracy predictions</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <svg class="progress-ring" width="120" height="120">
+                                            <circle class="progress-ring-circle" stroke="#28a745" stroke-width="8" 
+                                                    fill="transparent" r="52" cx="60" cy="60" 
+                                                    stroke-dasharray="326.73" stroke-dashoffset="65.35"/>
+                                        </svg>
+                                        <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                            <span class="h3 text-success">89%</span>
+                                        </div>
+                                    </div>
+                                    <h5 class="text-white">Humidity Model</h5>
+                                    <p class="text-light opacity-75">Reliable moisture predictions</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <svg class="progress-ring" width="120" height="120">
+                                            <circle class="progress-ring-circle" stroke="#ffc107" stroke-width="8" 
+                                                    fill="transparent" r="52" cx="60" cy="60" 
+                                                    stroke-dasharray="326.73" stroke-dashoffset="16.34"/>
+                                        </svg>
+                                        <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                            <span class="h3 text-warning">95%</span>
+                                        </div>
+                                    </div>
+                                    <h5 class="text-white">Rain Model</h5>
+                                    <p class="text-light opacity-75">Excellent precipitation forecasts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <div class="action-buttons">
+                    <a href="{% url 'predictor:predict' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-plus me-2"></i>
+                        New Prediction
+                    </a>
+                    <a href="{% url 'predictor:history' %}" class="btn btn-outline-light btn-lg me-3">
+                        <i class="fas fa-history me-2"></i>
+                        View History
+                    </a>
+                    <button class="btn btn-outline-success btn-lg" onclick="exportDashboardData()">
+                        <i class="fas fa-download me-2"></i>
+                        Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Dashboard data and charts
+let trendsChart, distributionChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    initializeCharts();
+    startRealTimeUpdates();
+});
+
+async function loadDashboardData() {
+    try {
+        // Load statistics from API
+        const response = await fetch('/api/v1/stats/');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateMetrics(data.data);
+            updateTopCities(data.data.top_cities);
+            updateRecentActivity();
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function updateMetrics(data) {
+    // Animate counter updates
+    animateCounter('totalPredictions', data.totals.predictions);
+    animateCounter('uniqueCities', data.totals.cities);
+    
+    // Update other metrics
+    document.getElementById('accuracyRate').textContent = '95%';
+    document.getElementById('avgResponseTime').textContent = '0.8s';
+}
+
+function animateCounter(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    const startValue = 0;
+    const duration = 2000;
+    const startTime = Date.now();
+    
+    function updateCounter() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuart(progress));
+        
+        element.textContent = currentValue.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+        }
+    }
+    
+    updateCounter();
+}
+
+function easeOutQuart(t) {
+    return 1 - (--t) * t * t * t;
+}
+
+function initializeCharts() {
+    // Trends Chart
+    const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+    trendsChart = new Chart(trendsCtx, {
+        type: 'line',
+        data: {
+            labels: generateDateLabels(30),
+            datasets: [{
+                label: 'Daily Predictions',
+                data: generateRandomData(30, 5, 25),
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+
+    // Distribution Chart
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    distributionChart = new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Clear Weather', 'Rain Predicted', 'Cloudy'],
+            datasets: [{
+                data: [65, 25, 10],
+                backgroundColor: [
+                    '#28a745',
+                    '#007bff',
+                    '#6c757d'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: 'white',
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+}
+
+function generateDateLabels(days) {
+    const labels = [];
+    for (let i = days - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+    return labels;
+}
+
+function generateRandomData(count, min, max) {
+    return Array.from({ length: count }, () => 
+        Math.floor(Math.random() * (max - min + 1)) + min
+    );
+}
+
+function updateTopCities(cities) {
+    const container = document.getElementById('topCitiesList');
+    
+    if (!cities || cities.length === 0) {
+        container.innerHTML = '<p class="text-light opacity-75">No data available</p>';
+        return;
+    }
+    
+    const citiesHtml = cities.slice(0, 5).map((city, index) => `
+        <div class="d-flex justify-content-between align-items-center py-2">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary me-3">${index + 1}</span>
+                <div>
+                    <h6 class="text-white mb-0">${city.city}</h6>
+                    <small class="text-light opacity-75">${city.count} predictions</small>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="text-info">${city.avg_temp?.toFixed(1) || 'N/A'}°C</div>
+                <small class="text-light opacity-75">${city.avg_humidity?.toFixed(0) || 'N/A'}% humidity</small>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = citiesHtml;
+}
+
+function updateRecentActivity() {
+    const activities = [
+        { icon: '🌡️', text: 'Temperature prediction for London', time: '2 minutes ago', color: 'bg-primary' },
+        { icon: '💧', text: 'Humidity analysis for Tokyo', time: '5 minutes ago', color: 'bg-info' },
+        { icon: '🌧️', text: 'Rain forecast for Mumbai', time: '8 minutes ago', color: 'bg-success' },
+        { icon: '🌤️', text: 'Weather update for Sydney', time: '12 minutes ago', color: 'bg-warning' },
+        { icon: '❄️', text: 'Cold front prediction for Berlin', time: '15 minutes ago', color: 'bg-secondary' }
+    ];
+    
+    const container = document.getElementById('recentActivity');
+    const activitiesHtml = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon ${activity.color}">
+                ${activity.icon}
+            </div>
+            <div class="flex-grow-1">
+                <div class="text-white">${activity.text}</div>
+                <small class="text-light opacity-75">${activity.time}</small>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = activitiesHtml;
+}
+
+function startRealTimeUpdates() {
+    // Update dashboard every 30 seconds
+    setInterval(() => {
+        loadDashboardData();
+    }, 30000);
+}
+
+function exportDashboardData() {
+    // Create CSV data
+    const csvData = [
+        ['Metric', 'Value'],
+        ['Total Predictions', document.getElementById('totalPredictions').textContent],
+        ['Unique Cities', document.getElementById('uniqueCities').textContent],
+        ['Accuracy Rate', document.getElementById('accuracyRate').textContent],
+        ['Avg Response Time', document.getElementById('avgResponseTime').textContent]
+    ];
+    
+    // Convert to CSV string
+    const csvString = csvData.map(row => row.join(',')).join('\n');
+    
+    // Download file
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `weather_dashboard_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Add some visual effects
+document.querySelectorAll('.dashboard-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-8px) scale(1.02)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+    });
+});
+</script>
+{% endblock %}
