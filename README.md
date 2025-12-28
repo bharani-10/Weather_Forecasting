@@ -172,7 +172,7 @@ The system uses OpenWeatherMap API for real-time weather data:
 
 ```python
 # Example API call
-api_key = "ff8c21d34e1be467ed610359b93f7bca"
+api_key = "API_KEY_HERE"
 city = "London"
 url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 ```
@@ -196,7 +196,7 @@ Create a `.env` file for local development:
 ```env
 SECRET_KEY=your-secret-key-here
 DEBUG=True
-WEATHER_API_KEY=ff8c21d34e1be467ed610359b93f7bca
+WEATHER_API_KEY = API_KEY_HERE
 DATABASE_URL=sqlite:///db.sqlite3
 ```
 
@@ -388,5 +388,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Built with ❤️ by [Your Name]**
+
 
 *Making weather prediction accessible to everyone through the power of AI and modern web technologies.*
