@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: weather-forecasting
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn weather_prediction.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: weather_prediction.settings_production
+      - key: DEBUG
+        value: False
+      - key: WEATHER_API_KEY
+        sync: false
+    autoDeploy: true

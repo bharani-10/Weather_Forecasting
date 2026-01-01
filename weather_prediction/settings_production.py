@@ -14,15 +14,12 @@ DEBUG = False
 SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 
 # Allowed hosts for production
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.herokuapp.com',
-    '.railway.app',
-    '.pythonanywhere.com',
-    '.render.com',
-    # Add your domain here
-]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.render.com').split(',')
+
+# Add Render.com host
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Database configuration for production
 DATABASES = {
@@ -52,20 +49,28 @@ if not DEBUG:
 # Middleware for production
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
-# Caching configuration
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://localhost:6379/1'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+# Caching configuration (use in-memory cache if Redis not available)
+REDIS_URL = config('REDIS_URL', default='')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
 
 # Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database for sessions on Render
 
 # Email configuration (for error reporting)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -121,8 +126,9 @@ LOGGING = {
     },
 }
 
-# Create logs directory
-os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+# Create logs directory if not in production (Render uses ephemeral filesystem)
+if not os.environ.get('RENDER'):
+    os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 # Weather API configuration (use environment variables)
 WEATHER_API_KEY = config('WEATHER_API_KEY', default='ff8c21d34e1be467ed610359b93f7bca')
