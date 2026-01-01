@@ -15,6 +15,7 @@ psycopg2-binary
 
 # Environment Variables
 python-decouple
+python-dotenv
 
 # Static Files (for production)
 whitenoise
