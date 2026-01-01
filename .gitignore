@@ -32,11 +32,8 @@ venv.bak/
 *.pyc
 __pycache__/
 local_settings.py
-db.sqlite3
 db.sqlite3-journal
 media/
-staticfiles/
-static_root/
 
 # Environment variables
 .env
@@ -56,14 +53,6 @@ static_root/
 .pytest_cache/
 htmlcov/
 .tox/
-
-# Machine Learning Models
-*.pkl
-*.h5
-*.joblib
-predictor/models/*.pkl
-predictor/models/*.h5
-predictor/models/*.joblib
 
 # Jupyter Notebooks
 .ipynb_checkpoints
