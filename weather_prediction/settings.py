@@ -34,8 +34,12 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv(
     'ALLOWED_HOSTS',
-    'localhost,127.0.0.1'
+    'localhost,127.0.0.1,ai-weather-forecasting.onrender.com'
 ).split(',')
+
+# Add .onrender.com domains automatically
+if not DEBUG:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 
 # Application definition
