@@ -57,7 +57,6 @@ A sophisticated, production-ready Django web application that leverages machine 
 - **Redis**: Caching layer
 
 ### Deployment
--
 - **Render**: Modern deployment platform
 
 ## 📁 Project Structure
@@ -360,7 +359,8 @@ We welcome contributions! Please follow these steps:
 - **Django** for the robust web framework
 - **Bootstrap** for responsive design components
 - **Font Awesome** for beautiful icons
-
+## Run the app here
+https://ai-weather-forecasting.onrender.com/
 
 
 ## 🔮 Future Enhancements
@@ -380,4 +380,5 @@ We welcome contributions! Please follow these steps:
 
 
 *Making weather prediction accessible to everyone through the power of AI and modern web technologies.*
+
 
